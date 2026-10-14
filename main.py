@@ -1,3 +1,4 @@
+import asyncio
 import json
 import logging
 import os
@@ -606,6 +607,14 @@ def main():
     application.add_error_handler(error_handler)
 
     logger.info("Starting CHANNEL OS in timezone %s", TIMEZONE_NAME)
+
+    # Compatibility workaround for Python versions where no default event loop
+    # is created automatically for the main thread.
+    try:
+        asyncio.get_event_loop()
+    except RuntimeError:
+        asyncio.set_event_loop(asyncio.new_event_loop())
+
     application.run_polling(allowed_updates=Update.ALL_TYPES)
 
 
